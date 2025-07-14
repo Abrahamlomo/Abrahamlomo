@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Ray's Beach Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4B006E; /* purple */
+            --secondary: #228B22; /* forest green */
+            --accent: #fff;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            color: var(--primary);
+        }
+        header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #fff;
+            padding: 2rem 0 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(75,0,110,0.1);
+            position: relative;
+        }
+        .top-right-btn-container {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            z-index: 10;
+        }
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            margin: 0 0 0.5rem 0;
+        }
+        header p {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .listings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .house {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            overflow: hidden;
+            transition: transform 0.2s;
+            border: 2px solid var(--secondary);
+        }
+        .house:hover {
+            transform: translateY(-6px) scale(1.02);
+        }
+        .house img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .house-details {
+            padding: 1.2rem;
+        }
+        .house-details h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            margin: 0 0 0.5rem 0;
+            color: var(--secondary);
+        }
+        .house-details p {
+            margin: 0.2rem 0 0.7rem 0;
+            color: #555;
+        }
+        .price {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            margin: 2.5rem 0 1.5rem 0;
+            text-align: center;
+            color: var(--secondary);
+        }
+        .event-btn-container {
+            text-align: center;
+            margin: 3rem 0 1rem 0;
+        }
+        .blinking-btn {
+            display: inline-block;
+            background: var(--primary);
+            color: var(--accent);
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            text-decoration: none;
+            border: 3px solid var(--secondary);
+            box-shadow: 0 4px 12px rgba(34,139,34,0.08);
+            margin-top: 0;
+            animation: blink 1s step-start 0s infinite;
+            transition: background 0.3s, color 0.3s;
+        }
+        .blinking-btn:hover {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+        @keyframes blink {
+            50% { opacity: 0.3; }
+        }
+        @media (max-width: 600px) {
+            .blinking-btn {
+                font-size: 1rem;
+                padding: 0.7rem 1.2rem;
+            }
+            .top-right-btn-container {
+                top: 0.7rem;
+                right: 0.7rem;
+            }
+        }
+        .payment-section {
+            margin: 3rem auto 2rem auto;
+            padding: 2rem 1rem;
+            background: #f7f5fa;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(75,0,110,0.07);
+            max-width: 600px;
+            text-align: center;
+        }
+        .payment-section h2 {
+            color: var(--primary);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+        }
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+        .payment-icons i {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            background: #fff;
+            border-radius: 50%;
+            padding: 0.7rem;
+            box-shadow: 0 2px 6px rgba(34,139,34,0.08);
+        }
+        .payment-section p {
+            color: #555;
+            font-size: 1rem;
+        }
+        .payment-icons a {
+            text-decoration: none;
+            display: inline-block;
+        }
+        .payment-icons a:focus i, .payment-icons a:hover i {
+            box-shadow: 0 0 0 4px var(--secondary), 0 2px 6px rgba(34,139,34,0.08);
+            outline: none;
+        }
+    </style>
+    <!-- Make sure to include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="top-right-btn-container">
+            <a class="blinking-btn" href="event.html">Go to Golf Event</a>
+        </div>
+        <h1>Big Ray's Beach Club</h1>
+        <p>Find your perfect house for sale</p>
+    </header>
+    <div class="container">
+        <div class="section-title">Featured Listings</div>
+        <div class="listings">
+            <div class="house">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Modern Family Home">
+                <div class="house-details">
+                    <h2>Modern Family Home</h2>
+                    <p>4 bed, 3 bath, 2,500 sqft<br>123 Maple Lane, Springfield</p>
+                    <div class="price">$450,000</div>
+                </div>
+            </div>
+            <div class="house">
+                <img src="https://images.unsplash.com/photo-1460518451285-97b6aa326961?auto=format&fit=crop&w=800&q=80" alt="Luxury Villa">
+                <div class="house-details">
+                    <h2>Luxury Villa</h2>
+                    <p>5 bed, 4.5 bath, 4,200 sqft<br>789 Oak Drive, Lakeview</p>
+                    <div class="price">$1,200,000</div>
+                </div>
+            </div>
+            <div class="house">
+                <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=800&q=80" alt="Cozy Cottage">
+                <div class="house-details">
+                    <h2>Cozy Cottage</h2>
+                    <p>2 bed, 1 bath, 1,100 sqft<br>456 Pine Street, Rivertown</p>
+                    <div class="price">$275,000</div>
+                </div>
+            </div>
+        </div>
+        <div class="payment-section">
+            <h2>Payment Methods Accepted</h2>
+            <div class="payment-icons">
+                <a href="payment.html?method=visa" title="Visa"><i class="fa-brands fa-cc-visa"></i></a>
+                <a href="payment.html?method=mastercard" title="MasterCard"><i class="fa-brands fa-cc-mastercard"></i></a>
+                <a href="payment.html?method=paypal" title="PayPal"><i class="fa-brands fa-cc-paypal"></i></a>
+                <a href="payment.html?method=bank" title="Bank Transfer"><i class="fa-solid fa-building-columns"></i></a>
+            </div>
+            <p>We accept Visa, MasterCard, PayPal, and direct bank transfers for your convenience.</p>
+        </div>
+    </div>
+</body>
+</html> 

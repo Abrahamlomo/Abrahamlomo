@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            color: #4B006E;
+        }
+        .payment-container {
+            max-width: 420px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(75,0,110,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            color: #228B22;
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+        .icon {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+        }
+        label {
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+        input, select {
+            padding: 0.7rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        button {
+            background: #4B006E;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.9rem;
+            font-size: 1.1rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            margin-top: 0.7rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #228B22;
+        }
+        #paypal-button-container {
+            margin-top: 1.5rem;
+        }
+        .bank-details {
+            background: #f7f5fa;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.2rem;
+            color: #222;
+        }
+    </style>
+    <!-- Stripe.js (test key for Elements) -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <!-- PayPal JS SDK (client-id will be set by backend) -->
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="icon" id="payment-icon"></div>
+        <h1 id="payment-title">Payment</h1>
+        <form id="payment-form" style="display:none;">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" name="amount" min="1" step="any" required>
+            <div id="method-fields"></div>
+            <button type="submit">Pay Now</button>
+        </form>
+        <div id="stripe-card-element" style="margin-bottom:1rem;"></div>
+        <div id="paypal-button-container" style="display:none;"></div>
+        <div id="bank-details" class="bank-details" style="display:none;"></div>
+        <div id="payment-message" style="margin-top:1.2rem; color:#228B22; text-align:center;"></div>
+    </div>
+    <script>
+        // Get payment method from URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+        const method = getQueryParam('method') || 'visa';
+        const titleMap = {
+            visa: 'Visa Payment',
+            mastercard: 'MasterCard Payment',
+            paypal: 'PayPal Payment',
+            bank: 'Bank Transfer Payment'
+        };
+        const iconMap = {
+            visa: '<i class="fa-brands fa-cc-visa" style="color:#228B22;"></i>',
+            mastercard: '<i class="fa-brands fa-cc-mastercard" style="color:#228B22;"></i>',
+            paypal: '<i class="fa-brands fa-cc-paypal" style="color:#228B22;"></i>',
+            bank: '<i class="fa-solid fa-building-columns" style="color:#228B22;"></i>'
+        };
+        document.getElementById('payment-title').textContent = titleMap[method] || 'Payment';
+        document.getElementById('payment-icon').innerHTML = iconMap[method] || '';
+
+        // Show/hide payment UI based on method
+        const form = document.getElementById('payment-form');
+        const stripeCardElement = document.getElementById('stripe-card-element');
+        const paypalBtnContainer = document.getElementById('paypal-button-container');
+        const bankDetails = document.getElementById('bank-details');
+        const methodFields = document.getElementById('method-fields');
+        const paymentMessage = document.getElementById('payment-message');
+
+        if (method === 'visa' || method === 'mastercard') {
+            form.style.display = '';
+            methodFields.innerHTML = '';
+            stripeCardElement.style.display = '';
+            paypalBtnContainer.style.display = 'none';
+            bankDetails.style.display = 'none';
+            // Stripe Elements setup
+            const stripe = Stripe('pk_test_51Nw...your_test_key...'); // Replace with your Stripe publishable key
+            const elements = stripe.elements();
+            const card = elements.create('card');
+            card.mount('#stripe-card-element');
+            form.onsubmit = async function(e) {
+                e.preventDefault();
+                paymentMessage.textContent = '';
+                const name = document.getElementById('name').value;
+                const amount = document.getElementById('amount').value;
+                // Create PaymentIntent on backend
+                const res = await fetch('/create-stripe-payment-intent', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({amount})
+                });
+                const data = await res.json();
+                if (!data.clientSecret) {
+                    paymentMessage.textContent = data.error || 'Payment failed.';
+                    return;
+                }
+                const {error, paymentIntent} = await stripe.confirmCardPayment(data.clientSecret, {
+                    payment_method: {
+                        card: card,
+                        billing_details: {name}
+                    }
+                });
+                if (error) {
+                    paymentMessage.textContent = error.message;
+                } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    paymentMessage.textContent = 'Payment successful!';
+                    form.reset();
+                }
+            };
+        } else if (method === 'paypal') {
+            form.style.display = '';
+            methodFields.innerHTML = '';
+            stripeCardElement.style.display = 'none';
+            paypalBtnContainer.style.display = '';
+            bankDetails.style.display = 'none';
+            // Render PayPal button
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    const amount = document.getElementById('amount').value || '1.00';
+                    return fetch('/create-paypal-order', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({amount})
+                    })
+                    .then(res => res.json())
+                    .then(orderData => orderData.id);
+                },
+                onApprove: function(data, actions) {
+                    paymentMessage.textContent = 'Payment successful! (Demo)';
+                },
+                onError: function(err) {
+                    paymentMessage.textContent = 'Payment failed: ' + err;
+                }
+            }).render('#paypal-button-container');
+        } else if (method === 'bank') {
+            form.style.display = 'none';
+            stripeCardElement.style.display = 'none';
+            paypalBtnContainer.style.display = 'none';
+            bankDetails.style.display = '';
+            bankDetails.innerHTML = `
+                <strong>Bank Transfer Details</strong><br>
+                Bank Name: Example Bank<br>
+                Account Name: Big Ray's Beach Club<br>
+                Account Number: 123456789<br>
+                Routing Number: 987654321<br>
+                Reference: Your Name / House/Event<br>
+                <br>
+                Please complete your transfer and email your receipt to info@beachclub.com.
+            `;
+        }
+    </script>
+</body>
+</html> 
